@@ -1,0 +1,32 @@
+version: '3'
+
+volumes:
+  mad-libs-db-volume:
+
+services:
+  mad-libs-db:
+    container_name: mad-libs-db
+    image: mysql:5.7
+    platform: linux/amd64
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: 'true'
+    volumes:
+      - mad-libs-db-volume:/var/lib/mysql:delegated
+  mad-libs-nginx:
+    container_name: mad-libs-nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/mad_libs/:delegated
+      - ./docker/nginx/site.conf:/etc/nginx/conf.d/default.conf
+  mad-libs-php:
+    container_name: mad-libs-php
+    working_dir: /var/www/mad_libs
+    build: ./docker/php
+    volumes:
+      - ./:/var/www/mad_libs/:delegated
